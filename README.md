@@ -1,81 +1,149 @@
-# SmartSQL Netlify Starter
+# SmartSQL Starter
 
-A Netlify starter template demonstrating [Raindrop SmartSQL](https://docs.raindrop.ai) capabilities with database seeding and natural language query functionality.
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/LiquidMetal-AI/netlify-smartsql-starter)
 
-## Features
+Minimal starter template demonstrating natural language database queries using Raindrop's SmartSQL feature on Netlify.
 
-- **Database Seeding**: Initialize a multi-table sales database with sample data
-- **Natural Language Queries**: Ask questions about your data in plain English
-- **AI-Powered SQL Generation**: Automatic conversion from natural language to SQL
-- **Beautiful UI**: Clean, responsive interface with tab-based navigation
-- **Idempotent Operations**: Safe to seed multiple times without data corruption
+## What It Does
 
-## Demo Schema
+SmartSQL converts natural language questions into SQL queries and executes them against your database. This demo includes a sample sales database and a chat-like interface where you can ask questions in plain English.
 
-The starter creates a relational database with four tables:
+## Quick Start
 
-- **customers**: Customer information (id, name, email, created_at)
-- **products**: Product catalog (id, name, price, category)
-- **orders**: Order records (id, customer_id, order_date, total_amount)
-- **order_items**: Individual line items (id, order_id, product_id, quantity, price)
+1. **Deploy to Netlify**: Click the button above to clone this template to a new Netlify project
 
-Sample data includes:
-- 10 customers
-- 20 products (Electronics and Furniture categories)
-- 30 orders
-- 59 order items
+2. **Add Raindrop Integration**: Follow the tutorial to add the Raindrop integration to your Netlify project:
+   - [Netlify Integration Tutorial](https://docs.liquidmetal.ai/tutorials/netlify-integration/)
+   - This automatically sets all required environment variables
 
-## Prerequisites
+3. **Run Locally** (optional):
+   ```bash
+   npm install
+   netlify link              # Connect to your Netlify project
+   npm run dev               # Pulls env vars from Netlify automatically
+   ```
 
-- A [Netlify](https://netlify.com) account
-- A [Raindrop](https://raindrop.ai) API key
-- Node.js 18+ (for local development)
+That's it! Your SmartSQL app is ready to use.
 
 ## Environment Variables
 
-The following environment variables are required:
+When you add the Raindrop integration to your Netlify project, these environment variables are **automatically set**:
 
-```bash
-RAINDROP_API_KEY=your_api_key
-RAINDROP_SMARTSQL_NAME=your_smartsql_instance_name
-RAINDROP_APPLICATION_VERSION=v1.0.0
-RAINDROP_APPLICATION_NAME=netlify-smartsql-starter
+- `RAINDROP_API_KEY`
+- `RAINDROP_SMARTSQL_NAME`
+- `RAINDROP_APPLICATION_NAME`
+- `RAINDROP_APPLICATION_VERSION`
+
+No manual configuration needed! The integration handles everything.
+
+## Project Structure
+
+```
+netlify-smartsql-starter/
+├── netlify.toml                    # Netlify configuration
+├── netlify/functions/
+│   ├── seed.js                     # Seeds database with sample data
+│   └── query.js                    # Handles natural language queries
+└── public/
+    ├── index.html                  # Query UI
+    ├── style.css                   # Styling
+    └── app.js                      # Client-side logic
 ```
 
-When deployed to Netlify with the Raindrop integration, these are automatically configured. For local development, copy `.env.example` to `.env` and fill in your values.
+## How It Works
 
-## Local Development
+### API Endpoints (Netlify Functions)
 
-1. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+#### POST /.netlify/functions/seed
+Seeds the database with sample sales data (customers, products, orders).
 
-2. **Set up environment variables**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your credentials
-   ```
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Database seeded successfully",
+  "tables": ["customers", "products", "orders", "order_items"],
+  "stats": {
+    "customers": 10,
+    "products": 20,
+    "orders": 30,
+    "orderItems": 59
+  }
+}
+```
 
-3. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
+#### POST /.netlify/functions/query
+Converts natural language to SQL and executes the query.
 
-4. **Open your browser**:
-   Navigate to `http://localhost:8888`
+**Request:**
+```json
+{
+  "textQuery": "Show me the top 5 customers by total order value"
+}
+```
 
-## Usage
+**Response:**
+```json
+{
+  "results": [...],
+  "queryExecuted": "SELECT ...",
+  "aiReasoning": "Converting 'top 5 customers' to SQL with ORDER BY and LIMIT",
+  "format": "json"
+}
+```
 
-### 1. Seed the Database
+### SmartSQL Operations
 
-Click the "Seed Database" button on the first tab to initialize your SmartSQL database with sample data. This operation is idempotent - you can click it multiple times safely.
+**Execute SQL (Seeding):**
+```javascript
+client.executeQuery.execute({
+  smartSqlLocation: {
+    smartSql: {
+      name: process.env.RAINDROP_SMARTSQL_NAME,
+      version: process.env.RAINDROP_APPLICATION_VERSION,
+      application_name: process.env.RAINDROP_APPLICATION_NAME
+    }
+  },
+  sqlQuery: "CREATE TABLE customers (...); INSERT INTO customers VALUES (...);"
+})
+```
 
-### 2. Query Your Data
+**Execute Natural Language Query:**
+```javascript
+client.executeQuery.execute({
+  smartSqlLocation: smartSqlLocation,
+  textQuery: "Show me the top 5 customers by total order value"
+})
+```
 
-Switch to the "Query Data" tab and ask questions in natural language:
+**Check Metadata (for idempotent seeding):**
+```javascript
+client.getMetadata.retrieve({
+  smartSqlLocation: smartSqlLocation
+})
+```
 
-**Example Questions:**
+## Database Schema
+
+The starter creates a relational sales database:
+
+**customers**
+- id, name, email, created_at
+
+**products**
+- id, name, price, category
+
+**orders**
+- id, customer_id, order_date, total_amount
+
+**order_items**
+- id, order_id, product_id, quantity, price
+
+Sample data: 10 customers, 20 products, 30 orders with line items
+
+## Example Queries
+
+Try these natural language questions:
 - "Show me the top 5 customers by total order value"
 - "What is the total revenue for November 2024?"
 - "Which products have been ordered more than 5 times?"
@@ -83,108 +151,38 @@ Switch to the "Query Data" tab and ask questions in natural language:
 - "What is the average order value?"
 - "List customers who haven't placed any orders"
 
-The AI will:
-1. Convert your question to SQL
-2. Execute the query
-3. Show you the reasoning behind the conversion
-4. Display the results in a formatted table
-
 ## Deployment
 
 ### Deploy to Netlify
 
-1. **Push to GitHub**:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin YOUR_REPO_URL
-   git push -u origin main
-   ```
+1. Install the Raindrop integration in your Netlify project
+2. Push to your connected Git repository, or use:
 
-2. **Connect to Netlify**:
-   - Go to [Netlify](https://app.netlify.com)
-   - Click "Add new site" → "Import an existing project"
-   - Connect your GitHub repository
-   - Netlify will auto-detect the settings from `netlify.toml`
-
-3. **Configure Environment Variables**:
-   - In your Netlify site dashboard, go to Site settings → Environment variables
-   - Add your Raindrop API credentials
-   - Or use the Raindrop integration to auto-configure
-
-4. **Deploy**:
-   ```bash
-   npm run deploy
-   ```
-
-## Project Structure
-
-```
-netlify-smartsql-starter/
-├── netlify/
-│   └── functions/
-│       ├── seed.js          # Database seeding endpoint
-│       └── query.js         # Natural language query endpoint
-├── public/
-│   ├── index.html           # Main UI
-│   ├── style.css            # Styling
-│   └── app.js               # Client-side logic
-├── netlify.toml             # Netlify configuration
-├── package.json             # Dependencies
-├── .env.example             # Environment template
-└── README.md                # Documentation
+```bash
+npm run deploy
 ```
 
-## Architecture
+The Raindrop integration automatically sets all required environment variables.
 
-### Backend (Netlify Functions)
+### Netlify Configuration
 
-- **seed.js**: Creates tables and inserts sample data using `executeQuery.execute()` with SQL queries
-- **query.js**: Converts natural language to SQL using `executeQuery.execute()` with text queries
+The `netlify.toml` file configures:
+- `publish = "public"` - serves static files from public/
+- `functions = "netlify/functions"` - functions directory
+- API redirects from `/api/*` to `/.netlify/functions/*`
 
-### Frontend
+## Key Concepts
 
-- **index.html**: Tab-based UI with seed and query interfaces
-- **style.css**: Modern, responsive styling with animations
-- **app.js**: Handles user interactions and API calls
+- **SmartSQL Location**: Identifies the SQL database by name, application, and version
+- **sqlQuery**: Direct SQL execution for creating tables and inserting data
+- **textQuery**: Natural language converted to SQL automatically
+- **AI Reasoning**: Shows how the AI interpreted and converted your question
+- **Idempotent Seeding**: Checks if tables exist before creating them
 
-### API Endpoints
+## Next Steps
 
-- `POST /api/seed`: Initialize the database
-- `POST /api/query`: Execute natural language queries
-
-## SmartSQL API Usage
-
-### Seeding (Direct SQL)
-
-```javascript
-await client.executeQuery.execute({
-  smartSqlLocation: {
-    smartSql: { name, version, application_name }
-  },
-  sqlQuery: "CREATE TABLE customers (...); INSERT INTO customers VALUES (...);"
-});
-```
-
-### Querying (Natural Language)
-
-```javascript
-await client.executeQuery.execute({
-  smartSqlLocation: {
-    smartSql: { name, version, application_name }
-  },
-  textQuery: "Show me the top 5 customers by total order value"
-});
-```
-
-## Learn More
-
-- [Raindrop Documentation](https://docs.raindrop.ai)
-- [SmartSQL API Reference](https://docs.raindrop.ai/api-reference/smart-sql)
-- [Netlify Functions](https://docs.netlify.com/functions/overview/)
-- [Raindrop SDK](https://www.npmjs.com/package/@liquidmetal-ai/lm-raindrop)
-
-## License
-
-MIT
+- Modify the schema to match your domain (e.g., e-commerce, analytics, CRM)
+- Add authentication to protect database access
+- Implement more complex queries with JOINs and aggregations
+- Add data visualization for query results
+- Integrate with a real production database

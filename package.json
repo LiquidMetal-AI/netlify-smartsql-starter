@@ -1,0 +1,27 @@
+{
+  "name": "netlify-smartsql-starter",
+  "version": "1.0.0",
+  "description": "Netlify starter template for SmartSQL with database seeding and natural language queries",
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": [
+    "netlify",
+    "smartsql",
+    "raindrop",
+    "ai",
+    "natural-language",
+    "database"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@liquidmetal-ai/lm-raindrop": "^0.6.42"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}

@@ -125,7 +125,7 @@ client.getMetadata.retrieve({
 
 ## Database Schema
 
-The starter creates a relational sales database:
+The seed button creates empty tables for a relational sales database:
 
 **customers**
 - id, name, email, created_at
@@ -139,17 +139,21 @@ The starter creates a relational sales database:
 **order_items**
 - id, order_id, product_id, quantity, price
 
-Sample data: 10 customers, 20 products, 30 orders with line items
+**Note:** Due to a SmartSQL limitation with batch INSERT statements, tables are created empty. Use natural language queries to insert data!
 
 ## Example Queries
 
-Try these natural language questions:
-- "Show me the top 5 customers by total order value"
-- "What is the total revenue for November 2024?"
-- "Which products have been ordered more than 5 times?"
-- "Show me all orders from the Electronics category"
-- "What is the average order value?"
-- "List customers who haven't placed any orders"
+**Insert data:**
+- "Add a customer named Alice Johnson with email alice@example.com created on 2024-01-15"
+- "Add a product called Laptop Pro priced at 1299.99 in the Electronics category"
+- "Insert an order for customer 1 on 2024-11-01 with total amount 1329.98"
+
+**Query data:**
+- "Show me all customers"
+- "Show me all products in the Electronics category"
+- "Count how many customers we have"
+- "Show me the most expensive product"
+- "List all orders with their customer names"
 
 ## Deployment
 

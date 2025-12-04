@@ -50,8 +50,7 @@ export const handler = async (event, context) => {
       console.log('No existing tables found, proceeding with seed');
     }
 
-    // Create tables only - SmartSQL has a bug where multiple INSERT statements
-    // fail with "RETURNING" syntax error. Users can insert data via natural language queries.
+    // Step 1: Create all tables in one call
     const createTablesSQL = `
       CREATE TABLE IF NOT EXISTS customers (
         id INTEGER PRIMARY KEY,
@@ -86,11 +85,74 @@ export const handler = async (event, context) => {
       );
     `;
 
-    // Execute the table creation
-    const response = await client.executeQuery.execute({
+    await client.executeQuery.execute({
       smartSqlLocation: smartSqlLocation,
       sqlQuery: createTablesSQL,
     });
+
+    // Step 2: Insert customers (one call per insert to avoid RETURNING bug)
+    const customers = [
+      [1, 'Alice Johnson', 'alice@example.com', '2024-01-15'],
+      [2, 'Bob Smith', 'bob@example.com', '2024-02-20'],
+      [3, 'Carol Williams', 'carol@example.com', '2024-03-10'],
+      [4, 'David Brown', 'david@example.com', '2024-04-05'],
+      [5, 'Emma Davis', 'emma@example.com', '2024-05-12'],
+    ];
+
+    for (const [id, name, email, created_at] of customers) {
+      await client.executeQuery.execute({
+        smartSqlLocation: smartSqlLocation,
+        sqlQuery: `INSERT INTO customers (id, name, email, created_at) VALUES (${id}, '${name}', '${email}', '${created_at}')`,
+      });
+    }
+
+    // Step 3: Insert products
+    const products = [
+      [1, 'Laptop Pro', 1299.99, 'Electronics'],
+      [2, 'Wireless Mouse', 29.99, 'Electronics'],
+      [3, 'Desk Chair', 249.99, 'Furniture'],
+      [4, 'Standing Desk', 499.99, 'Furniture'],
+      [5, 'Monitor 27"', 399.99, 'Electronics'],
+    ];
+
+    for (const [id, name, price, category] of products) {
+      await client.executeQuery.execute({
+        smartSqlLocation: smartSqlLocation,
+        sqlQuery: `INSERT INTO products (id, name, price, category) VALUES (${id}, '${name}', ${price}, '${category}')`,
+      });
+    }
+
+    // Step 4: Insert orders
+    const orders = [
+      [1, 1, '2024-11-01', 1329.98],
+      [2, 2, '2024-11-02', 749.98],
+      [3, 3, '2024-11-03', 279.98],
+      [4, 1, '2024-11-04', 449.98],
+      [5, 4, '2024-11-05', 1699.97],
+    ];
+
+    for (const [id, customer_id, order_date, total_amount] of orders) {
+      await client.executeQuery.execute({
+        smartSqlLocation: smartSqlLocation,
+        sqlQuery: `INSERT INTO orders (id, customer_id, order_date, total_amount) VALUES (${id}, ${customer_id}, '${order_date}', ${total_amount})`,
+      });
+    }
+
+    // Step 5: Insert order_items
+    const orderItems = [
+      [1, 1, 1, 1, 1299.99],
+      [2, 1, 2, 1, 29.99],
+      [3, 2, 3, 1, 249.99],
+      [4, 2, 4, 1, 499.99],
+      [5, 3, 5, 1, 399.99],
+    ];
+
+    for (const [id, order_id, product_id, quantity, price] of orderItems) {
+      await client.executeQuery.execute({
+        smartSqlLocation: smartSqlLocation,
+        sqlQuery: `INSERT INTO order_items (id, order_id, product_id, quantity, price) VALUES (${id}, ${order_id}, ${product_id}, ${quantity}, ${price})`,
+      });
+    }
 
     return {
       statusCode: 200,
@@ -99,9 +161,14 @@ export const handler = async (event, context) => {
       },
       body: JSON.stringify({
         success: true,
-        message: 'Database tables created successfully. Use natural language queries to insert data!',
+        message: 'Database seeded successfully',
         tables: ['customers', 'products', 'orders', 'order_items'],
-        note: 'Tables are empty. Try queries like: "Add a customer named Alice with email alice@example.com"'
+        stats: {
+          customers: customers.length,
+          products: products.length,
+          orders: orders.length,
+          orderItems: orderItems.length,
+        }
       }),
     };
   } catch (error) {

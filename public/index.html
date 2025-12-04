@@ -23,8 +23,8 @@
       <div id="seed-tab" class="tab-pane active">
         <div class="info-box">
           <h2>Seed Database</h2>
-          <p>Creates empty database tables for a sales system: customers, products, orders, and order items.</p>
-          <p class="note">Note: Tables will be created empty. Use the "Query Data" tab to insert data using natural language!</p>
+          <p>Initialize your SmartSQL database with sample sales data. This creates tables and inserts sample customers, products, orders, and order items.</p>
+          <p class="note">Note: The seed button is idempotent - it's safe to click multiple times. If tables already exist, seeding will be skipped.</p>
         </div>
 
         <div class="action-section">
@@ -105,23 +105,23 @@
         <div class="examples-section">
           <h3>Example Queries:</h3>
           <div class="example-queries">
-            <button class="example-btn" data-query="Add a customer named Alice Johnson with email alice@example.com created on 2024-01-15">
-              Insert customer
-            </button>
-            <button class="example-btn" data-query="Add a product called Laptop Pro priced at 1299.99 in the Electronics category">
-              Insert product
-            </button>
             <button class="example-btn" data-query="Show me all customers">
               List all customers
             </button>
             <button class="example-btn" data-query="Show me all products in the Electronics category">
               Electronics products
             </button>
-            <button class="example-btn" data-query="Count how many customers we have">
-              Count customers
+            <button class="example-btn" data-query="What are the total sales by category?">
+              Sales by category
             </button>
-            <button class="example-btn" data-query="Show me the most expensive product">
-              Most expensive product
+            <button class="example-btn" data-query="Show me the top 3 customers by total order value">
+              Top customers
+            </button>
+            <button class="example-btn" data-query="Which products have been ordered?">
+              Ordered products
+            </button>
+            <button class="example-btn" data-query="Show me all orders with customer names">
+              Orders with customers
             </button>
           </div>
         </div>

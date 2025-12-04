@@ -125,35 +125,28 @@ client.getMetadata.retrieve({
 
 ## Database Schema
 
-The seed button creates empty tables for a relational sales database:
+The seed button creates and populates a relational sales database:
 
-**customers**
+**customers** (5 sample records)
 - id, name, email, created_at
 
-**products**
+**products** (5 sample records)
 - id, name, price, category
 
-**orders**
+**orders** (5 sample records)
 - id, customer_id, order_date, total_amount
 
-**order_items**
+**order_items** (5 sample records)
 - id, order_id, product_id, quantity, price
-
-**Note:** Due to a SmartSQL limitation with batch INSERT statements, tables are created empty. Use natural language queries to insert data!
 
 ## Example Queries
 
-**Insert data:**
-- "Add a customer named Alice Johnson with email alice@example.com created on 2024-01-15"
-- "Add a product called Laptop Pro priced at 1299.99 in the Electronics category"
-- "Insert an order for customer 1 on 2024-11-01 with total amount 1329.98"
-
-**Query data:**
 - "Show me all customers"
 - "Show me all products in the Electronics category"
-- "Count how many customers we have"
-- "Show me the most expensive product"
-- "List all orders with their customer names"
+- "What are the total sales by category?"
+- "Show me the top 3 customers by total order value"
+- "Which products have been ordered?"
+- "Show me all orders with customer names"
 
 ## Deployment
 
